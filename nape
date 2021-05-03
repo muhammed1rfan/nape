@@ -1,0 +1,96 @@
+#! /usr/bin/env python3
+import random, csv, smtplib, ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+print("Welcome to  NAPE | Not A Phising Email ")
+sender_email = input("Enter Email Address ")
+password = input("Enter Password ")
+csvfile=input("Please Provide the csv file's Location ")
+URL=input("Provide the Site for Ping Back")
+select=input("Select Templates Randomly or  Manaully | r or m ")
+
+
+
+context = ssl.create_default_context()
+with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+    server.login(sender_email, password)
+    with open(csvfile) as file:
+        reader = csv.reader(file)
+        next(reader)  
+        for name, receiver_email in reader:
+            
+            template={
+            'a': f"""\
+            <html>
+            <head>
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+            </head>
+            <body>
+            <h3 style="color:#9E9E9E;">WebMail Account</h3>
+            <h1 style="color:#29B6F6;">Your mailbox has been compromised</h1>
+            <p>Your webmail account has been compromised.</p>
+            <p>We have blocked your account for your own safety.</p>
+            <p>Please follow these steps below to sign in and keep your account safe:</p>
+            <p>
+            <ol>
+            <li><a href="{URL}{receiver_email}">Protect your account</a></li>
+            <li>Learn how to <a href="{URL}{receiver_email}">make your account more secure</a></li>
+            </ol>
+            </p>
+            <p>To opt out or change where you receive security notifications, <a href="{URL}{receiver_email}">click here</a></p>
+
+           <p>Thanks,</p>
+           <p>Webmail account team</p>
+           </body>
+           </html>
+           """,
+           'b': f"""\
+           <html>
+           <head>
+           <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+           </head>
+           <body>
+           <h1 style="color:#4472c4">Microsoft Account</h1>
+           <p>Dear Sir,</p>
+           <p>Someone in Bogotá Colombia attempted to log into your account several times. If you believe this was fraudulent activity please report it <a href="{URL}{receiver_email}">here</a>.</p>
+           <p>If you do not believe this to be fraudulent activity you may ignore this message</p><br>
+           <p>Sincerely,</p>
+           <p>Office365 @ COMPANY.com</p>
+           </body>
+           </html>
+           """
+           }
+            
+            if select=="r":
+               print("Selecting  Random Template")
+               htm=random.choice(list(template.values()))
+               
+            elif select=="m":               
+                inp=input("Please Select Your Template a.Webmail  b.Microsoft ")
+                htm=template.get(inp)
+                
+            else:
+               print("Please Select r or m | Exiting")
+               quit()
+                    
+            message = MIMEMultipart("alternative")
+            message["Subject"] = "Test mail"
+            message["From"] = sender_email
+            message["To"] = receiver_email
+            text = f"""\
+            Hi {name},
+            How are you?
+
+            www.valuementor.com/?q="""+receiver_email
+            
+            html = htm
+            
+            part1 = MIMEText(text, "plain")
+            part2 = MIMEText(html, "html")
+            message.attach(part1)
+            message.attach(part2)
+            print(f"Sending mail for {receiver_email}")
+            server.sendmail(
+            sender_email, receiver_email, message.as_string()
+    )
