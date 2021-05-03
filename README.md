@@ -1,5 +1,5 @@
 # nape
-NAPE ( Not a Phishing Mail is Phishing Email Simulation tool) 
+NAPE ( Not a Phishing Mail ) is Phishing Email Simulation tool
 It is Really easy to use
 
 First Clone the Repository: git clone https://github.com/muhammed1rfan/nape.git
